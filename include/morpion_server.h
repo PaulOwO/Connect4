@@ -10,14 +10,20 @@
 
 namespace morpion
 {
-
+     enum class CaseState
+     {
+         Empty,
+         Red,
+         Yellow
+     };
+	
 class MorpionServer
 {
 public:
     int Run();
 private:
     std::array<sf::TcpSocket, maxClientNmb> sockets_;
-    std::array<Move, 9> moves_{};
+    std::array<Move, 42> moves_{};
     sf::SocketSelector selector_;
     sf::TcpListener listener_;
     MorpionPhase phase_ = MorpionPhase::CONNECTION;
@@ -30,5 +36,7 @@ private:
     void ManageMovePacket(const MovePacket& movePacket);
 
     int GetNextSocket();
+
+    
 };
 }

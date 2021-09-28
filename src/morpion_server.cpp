@@ -35,7 +35,6 @@ namespace morpion
                         break;
                     }
                     }
-
                 }
             }
         }
@@ -43,7 +42,8 @@ namespace morpion
 
     PlayerNumber MorpionServer::CheckWinner() const
     {
-        std::array<std::array<PlayerNumber, 3>, 3> board{};
+        return 255u;
+        /*std::array<std::array<PlayerNumber, 3>, 3> board{};
         std::ranges::for_each(board, [](auto& line)
         {
             line.fill(255u);
@@ -51,7 +51,7 @@ namespace morpion
         for(unsigned i = 0; i < currentMoveIndex_; i++)
         {
             const auto& move = moves_[i];
-            board[move.position.x][move.position.y] = move.playerNumber;
+            board[move.position][move.position] = move.playerNumber; //DANGER
         }
         //Line
         for(unsigned i = 0; i < 3; i++)
@@ -127,14 +127,33 @@ namespace morpion
                 return firstTile;
             }
         }
-        return 255u;
+        return 255u;*/
     }
 
     void MorpionServer::ManageMovePacket(const MovePacket& movePacket)
     {
+        bool create = true;
+    	if ( create == true)
+        {
+            std::array<CaseState, 6> c1{};
+            std::array<CaseState, 6> c2{};
+            std::array<CaseState, 6> c3{};
+            std::array<CaseState, 6> c4{};
+            std::array<CaseState, 6> c5{};
+            std::array<CaseState, 6> c6{};
+            std::array<CaseState, 6> c7{};
+            c1.fill(CaseState::Empty);
+            c2.fill(CaseState::Empty);
+            c3.fill(CaseState::Empty);
+            c4.fill(CaseState::Empty);
+            c5.fill(CaseState::Empty);
+            c6.fill(CaseState::Empty);
+            c7.fill(CaseState::Empty);
+            create = false;
+            //std::array<_ARRAY_, 7> line{ c1, c2, c3, c4, c5, c6, c7 };
+        }
         std::cout << "Player " << movePacket.move.playerNumber + 1 <<
-            " made move " << movePacket.move.position.x << ',' <<
-            movePacket.move.position.y << '\n';
+            " made move " << movePacket.move.position << '\n';
 
         if (phase_ != MorpionPhase::GAME)
             return;
@@ -145,24 +164,29 @@ namespace morpion
             return;
         }
 
-        if(movePacket.move.position.x > 2 || movePacket.move.position.y > 2)
+        if(movePacket.move.position > 7 )
         {
             return;
         }
 
-        for(unsigned char i = 0; i < currentMoveIndex_; i++)
+        if (movePacket.move.position < 1)
         {
-            if(moves_[i].position == movePacket.move.position)
-                //TODO return an error msg
-                return;
+	        return;
         }
+
+              //TODO si la colonne est rempli return    
 
         auto& currentMove = moves_[currentMoveIndex_];
         currentMove.position = movePacket.move.position;
         currentMove.playerNumber = movePacket.move.playerNumber;
         currentMoveIndex_++;
+
+        
+    	
+        //TODO ici ? la simulation de la grille
+    	
         EndType endType = EndType::NONE;
-        if(currentMoveIndex_ == 9)
+        if(currentMoveIndex_ == 42)
         {
             //TODO end of game
             endType = EndType::STALEMATE;
@@ -284,7 +308,6 @@ namespace morpion
                 if (nextIndex == 1)
                 {
                     StartNewGame();
-
                 }
             }
         }

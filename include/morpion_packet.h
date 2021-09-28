@@ -56,16 +56,14 @@ namespace morpion
     inline sf::Packet& operator <<(sf::Packet& packet, const MovePacket& movePacket)
     {
         return packet << static_cast<unsigned char>(movePacket.packetType)
-            << movePacket.move.position.x
-            << movePacket.move.position.y
+            << movePacket.move.position    
             << movePacket.move.playerNumber;
     }
 
     inline sf::Packet& operator >>(sf::Packet& packet, MovePacket& movePacket)
     {
         return packet
-            >> movePacket.move.position.x
-            >> movePacket.move.position.y
+            >> movePacket.move.position
             >> movePacket.move.playerNumber;
     }
 

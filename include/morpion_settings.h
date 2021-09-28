@@ -4,7 +4,7 @@
 namespace morpion
 {
 constexpr int maxClientNmb = 2;
-constexpr unsigned short serverPortNumber = 12345;
+constexpr unsigned short serverPortNumber = 65000;
 enum class MorpionPhase
 {
     CONNECTION,
@@ -15,7 +15,7 @@ enum class MorpionPhase
 using PlayerNumber = unsigned char;
 struct Move
 {
-    sf::Vector2i position;
+    int position;
     PlayerNumber playerNumber;
 };
 }

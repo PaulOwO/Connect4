@@ -26,40 +26,29 @@ namespace morpion
         void Update() override;
         void Destroy() override;
         int GetPlayerNumber() const;
-        void SendNewMove(sf::Vector2i position);
-        const std::array<Move, 9>& GetMoves() const;
+        void SendNewMove(int position);
         unsigned char GetMoveIndex() const;
         std::string_view GetEndMessage() const;
     private:
         sf::TcpSocket socket_;
         MorpionPhase phase_ = MorpionPhase::CONNECTION;
-        std::array<Move, 9> moves_{};
+        std::array<Move, 42> moves_{};
         unsigned char currentMoveIndex_ = 0;
         std::string endMessage_;
         PlayerNumber playerNumber_ = 255u;
     };
 
 
-    class MorpionView : public DrawImGuiInterface, public DrawInterface, public OnEventInterface
+    class MorpionView : public DrawImGuiInterface
     {
     public:
         MorpionView(MorpionClient& client);
         void DrawImGui() override;
-       
-        void Draw(sf::RenderWindow& window) override;
-        void OnEvent(const sf::Event& event) override;
     private:
-        void DrawBoard(sf::RenderWindow& window);
-        void DrawMove(sf::RenderWindow& window, const Move& move);
-        void DrawCircle(sf::RenderWindow& window, sf::Vector2i pos);
-        void DrawCross(sf::RenderWindow& window, sf::Vector2i pos);
-        void DrawCursor(sf::RenderWindow& window);
-        void Resize(sf::Vector2i newWindowSize);
-
         MorpionClient& client_;
         std::string ipAddressBuffer_ = "localhost";
         int portNumber_ = serverPortNumber;
-        std::array<int, 2> currentPosition_{};
+        int currentColumn;
 
         sf::RectangleShape rect_;
         sf::CircleShape circle_;
