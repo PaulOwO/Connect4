@@ -40,99 +40,35 @@ namespace morpion
         }
     }
 
+    int MorpionServer::CreateRandomNumber()
+	{
+        std::default_random_engine generator;
+        std::uniform_int_distribution<int> distribution(1, 3);
+        int dice_roll = distribution(generator);
+        return dice_roll;
+	}
+
+
     PlayerNumber MorpionServer::CheckWinner() const
     {
-        return 255u;
-        /*std::array<std::array<PlayerNumber, 3>, 3> board{};
-        std::ranges::for_each(board, [](auto& line)
+
+        if ((stockedMove == randomNumber) && (currentPlay != randomNumber))
         {
-            line.fill(255u);
-        });
-        for(unsigned i = 0; i < currentMoveIndex_; i++)
-        {
-            const auto& move = moves_[i];
-            board[move.position][move.position] = move.playerNumber; //DANGER
+            return 0;
         }
-        //Line
-        for(unsigned i = 0; i < 3; i++)
+        if ((stockedMove == randomNumber) && (currentPlay == randomNumber))
         {
-            PlayerNumber firstTile = board[i][0];
-            bool victory = true;
-            for(unsigned j = 1; j < 3; j++)
-            {
-                if (firstTile != board[i][j])
-                {
-                    victory = false;
-                    break;
-                }
-            }
-            if(victory && firstTile != 255u)
-            {
-                return firstTile;
-            }
+            return 3;
         }
-        //Column
-        for (unsigned i = 0; i < 3; i++)
+        if ((stockedMove != randomNumber) && (currentPlay == randomNumber))
         {
-            PlayerNumber firstTile = board[0][i];
-            bool victory = true;
-            for (unsigned j = 1; j < 3; j++)
-            {
-                if (firstTile != board[j][i])
-                {
-                    victory = false;
-                    break;
-                }
-            }
-            if (victory && firstTile != 255u)
-            {
-                return firstTile;
-            }
+            return 1;
         }
-        //First diagonal
-        {
-            PlayerNumber firstTile = board[0][0];
-            bool victory = true;
-            for (unsigned i = 1; i < 3; i++)
-            {
-                if (firstTile != board[i][i])
-                {
-                    victory = false;
-                    break;
-                }
-            }
-            if (victory && firstTile != 255u)
-            {
-                return firstTile;
-            }
-        }
-        {
-            const std::array diagonal = {
-                sf::Vector2i(2,0),
-                sf::Vector2i(1,1),
-                sf::Vector2i(0,2)
-            };
-            PlayerNumber firstTile = board[diagonal[0].x][diagonal[0].y];
-            bool victory = true;
-            for (unsigned i = 1; i < 3; i++)
-            {
-                if (firstTile != board[diagonal[i].x][diagonal[i].y])
-                {
-                    victory = false;
-                    break;
-                }
-            }
-            if (victory && firstTile != 255u)
-            {
-                return firstTile;
-            }
-        }
-        return 255u;*/
     }
 
     void MorpionServer::ManageMovePacket(const MovePacket& movePacket)
     {
-        bool create = true;
+        /* bool create = true;
     	if ( create == true)
         {
             std::array<CaseState, 6> c1{};
@@ -151,10 +87,10 @@ namespace morpion
             c7.fill(CaseState::Empty);
             create = false;
             //std::array<_ARRAY_, 7> line{ c1, c2, c3, c4, c5, c6, c7 };
-        }
+        }*/
         std::cout << "Player " << movePacket.move.playerNumber + 1 <<
             " made move " << movePacket.move.position << '\n';
-
+        
         if (phase_ != MorpionPhase::GAME)
             return;
 
@@ -164,7 +100,7 @@ namespace morpion
             return;
         }
 
-        if(movePacket.move.position > 7 )
+        if(movePacket.move.position > 3 )
         {
             return;
         }
@@ -186,17 +122,32 @@ namespace morpion
         //TODO ici ? la simulation de la grille
     	
         EndType endType = EndType::NONE;
-        if(currentMoveIndex_ == 42)
+        if(currentMoveIndex_ == 5)
         {
             //TODO end of game
             endType = EndType::STALEMATE;
         }
         //TODO check victory condition
-        PlayerNumber winningPlayer = CheckWinner();
-        if(winningPlayer != 255u)
+        if ((currentMoveIndex_  == 2 ) ||
+           (currentMoveIndex_ == 4) )
         {
-            endType = winningPlayer ? EndType::WIN_P2 : EndType::WIN_P1;
+            currentPlay = movePacket.move.position;
+            PlayerNumber winningPlayer = CheckWinner();
+            if ((winningPlayer == 1) || (winningPlayer == 0))
+            {
+                endType = winningPlayer ? EndType::WIN_P2 : EndType::WIN_P1;
+            }
+        	else if (winningPlayer == 3)
+        	{
+                endType = EndType::STALEMATE;
+        	}
         }
+    	else
+    	{
+            stockedMove = movePacket.move.position;
+    	}
+        
+       
         
         MovePacket newMovePacket = movePacket;
         newMovePacket.packetType = PacketType::MOVE;
@@ -237,6 +188,12 @@ namespace morpion
         }
     }
 
+	
+	
+        
+	
+
+
     int MorpionServer::Run()
     {
         if (listener_.listen(serverPortNumber) != sf::Socket::Done)
@@ -272,8 +229,10 @@ namespace morpion
         std::cout << "Two players connected!\n";
 
         std::default_random_engine generator;
-        std::uniform_int_distribution<int> distribution(0, 1);
+        std::uniform_int_distribution<int> distribution(0, 1); 
         int dice_roll = distribution(generator);
+        randomNumber = CreateRandomNumber();
+        
 
         for (unsigned char i = 0; i < sockets_.size(); i++)
         {

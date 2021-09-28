@@ -5,6 +5,7 @@
 #include <SFML/Network/TcpListener.hpp>
 #include <SFML/Network/TcpSocket.hpp>
 #include <morpion_settings.h>
+#include <random>
 
 #include "morpion_packet.h"
 
@@ -16,6 +17,8 @@ namespace morpion
          Red,
          Yellow
      };
+
+     
 	
 class MorpionServer
 {
@@ -37,6 +40,9 @@ private:
 
     int GetNextSocket();
 
-    
+    int CreateRandomNumber();
+    int randomNumber;
+    int currentPlay;
+    int stockedMove;
 };
 }
